@@ -109,6 +109,7 @@
         .btn-ras { background-color: var(--bar-orange); color: white; border: none; }
         .btn-ras:hover { background-color: #d35400; }
 
+        /* SCÈNE DE RONDE */
         #scene-ronde { 
             position: relative; 
             width: 100%; 
@@ -127,28 +128,39 @@
             display: block; 
         }
         
-        /* FIX MAJEUR : CONTENEUR DES HOTSPOTS EN POSITION ABSOLUE SUR TOUTE LA SCÈNE */
+        /* CONTENEUR DES HOTSPOTS FIXÉ EN ABSOLU SUR TOUTE LA SCÈNE */
         #conteneur-anomalies {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Laisse passer les clics globaux mais les réactive sur les enfants */
+            pointer-events: none;
         }
 
-        /* ZONES CLIQUABLES */
+        /* ZONES CLIQUABLES (HITBOX) */
         .anomalie { 
             position: absolute; 
             cursor: pointer; 
             background-color: transparent; 
-            border: none; 
+            border: 2px solid transparent; 
             transition: 0.3s; 
             z-index: 150; 
-            pointer-events: auto; /* Force l'interactivité des hitbox */
+            pointer-events: auto; /* Indispensable pour capter les clics */
         }
-        .anomalie.visible { background-color: rgba(231, 76, 60, 0.4) !important; border: 2px dashed rgba(255, 255, 255, 0.8) !important; }
-        .anomalie.visible:hover { background-color: rgba(231, 76, 60, 0.7) !important; }
-        .anomalie.traitee { background-color: rgba(46, 204, 113, 0.5) !important; border: 2px solid #2ecc71 !important; pointer-events: none; }
+        /* Style appliqué lorsque l'on clique sur le bouton d'aide */
+        .anomalie.visible { 
+            background-color: rgba(231, 76, 60, 0.4) !important; 
+            border: 2px dashed #ffffff !important; 
+        }
+        .anomalie.visible:hover { 
+            background-color: rgba(231, 76, 60, 0.7) !important; 
+        }
+        .anomalie.traitee { 
+            background-color: rgba(46, 204, 113, 0.5) !important; 
+            border: 2px solid #2ecc71 !important; 
+            pointer-events: none; 
+        }
 
         /* MODALE QCM DOUBLE COLONNE */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; }
@@ -287,7 +299,7 @@
                         <img src="" alt="Situation" id="image-fond">
                         <!-- Overlay de la grille d'aide au positionnement -->
                         <div id="grille-overlay" class="cache"></div>
-                        <!-- Conteneur des zones (Corrigé avec positionnement absolu) -->
+                        <!-- Conteneur des zones -->
                         <div id="conteneur-anomalies"></div>
                     </main>
                     
@@ -339,20 +351,7 @@
                 title: "Parcours Sécurité Incendie (SSIAP)",
                 desc: "Analysez ces 10 zones. Identifiez les failles liées au risque incendie, aux dégagements ou aux équipements de secours. Prenez la bonne décision corrective.",
                 images: [
-                    {
-                        src: "incendie-photo1.jpg", 
-                        anomalies: [
-                            { 
-                                top: "40%", left: "65%", width: "12%", height: "35%", 
-                                qcm: {
-                                    titre: "Porte coupe-feu",
-                                    id: [ { texte: "Cale sous la porte coupe-feu", correct: true }, { texte: "Porte verrouillée", correct: false } ],
-                                    justif: [ { texte: "Empêche le compartimentage en cas d'incendie.", correct: true }, { texte: "Gêne la circulation des personnes.", correct: false } ],
-                                    explication: "Une porte coupe-feu ne doit jamais être calée ouverte."
-                                }
-                            }
-                        ]
-                    },
+                    { src: "incendie-photo1.jpg", anomalies: [] },
                     { src: "incendie-photo2.jpg", anomalies: [] }, { src: "incendie-photo3.jpg", anomalies: [] }, { src: "incendie-photo4.jpg", anomalies: [] }, { src: "incendie-photo5.jpg", anomalies: [] },
                     { src: "incendie-photo6.jpg", anomalies: [] }, { src: "incendie-photo7.jpg", anomalies: [] }, { src: "incendie-photo8.jpg", anomalies: [] }, { src: "incendie-photo9.jpg", anomalies: [] }, { src: "incendie-photo10.jpg", anomalies: [] }
                 ]
@@ -361,20 +360,7 @@
                 title: "Parcours Sûreté & Malveillance",
                 desc: "Effectuez votre ronde de sûreté. Détectez les vulnérabilités périphériques, les effractions ou les objets suspects en appliquant la méthode Vidocq.",
                 images: [
-                    {
-                        src: "surete-photo1.jpg",
-                        anomalies: [
-                            { 
-                                top: "45%", left: "16%", width: "15%", height: "25%", 
-                                qcm: {
-                                    titre: "Périmètre extérieur",
-                                    id: [ { texte: "Grillage découpé", correct: true }, { texte: "Grillage rouillé", correct: false } ],
-                                    justif: [ { texte: "Effraction avérée, intrusion possible.", correct: true }, { texte: "Problème esthétique.", correct: false } ],
-                                    explication: "Alerter le PC et figer les lieux."
-                                }
-                            }
-                        ]
-                    },
+                    { src: "surete-photo1.jpg", anomalies: [] },
                     { src: "surete-photo2.jpg", anomalies: [] }, { src: "surete-photo3.jpg", anomalies: [] }, { src: "surete-photo4.jpg", anomalies: [] }, { src: "surete-photo5.jpg", anomalies: [] },
                     { src: "surete-photo6.jpg", anomalies: [] }, { src: "surete-photo7.jpg", anomalies: [] }, { src: "surete-photo8.jpg", anomalies: [] }, { src: "surete-photo9.jpg", anomalies: [] }, { src: "surete-photo10.jpg", anomalies: [] }
                 ]
@@ -498,7 +484,7 @@
             }
         }
 
-        // ── 5. MOTEUR DU JEU ET INJECTION ─────────────────────────
+        // ── 5. MOTEUR DU JEU ET INJECTION DES 3 HITBOX (A1, C4, E8) ──
         function changerEcran(idEcran) {
             document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
             document.getElementById(idEcran).classList.add('active');
@@ -525,20 +511,18 @@
 
             const donnees = db[filiereActuelle].images[niveauActuel];
 
-            // ⚠️ INJECTION AUTOMATIQUE : Garantie pour les 3 zones A1, C4, E8
-            if (!donnees.anomalies || donnees.anomalies.length === 0) {
-                const qcmBase = {
-                    id: [ { texte: "Bonne identification (Test)", correct: true }, { texte: "Mauvaise identification", correct: false } ],
-                    justif: [ { texte: "Bonne justification (Test)", correct: true }, { texte: "Mauvaise justification", correct: false } ],
-                    explication: "Ceci est un test généré automatiquement pour le développement."
-                };
-                
-                donnees.anomalies = [
-                    { top: "0%", left: "0%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone de Test A1"}, qcmBase) },
-                    { top: "40%", left: "30%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone de Test C4"}, qcmBase) },
-                    { top: "80%", left: "70%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone de Test E8"}, qcmBase) }
-                ];
-            }
+            // ⚠️ INJECTION SYSTÉMATIQUE DES 3 HITBOX DE TEST EN A1, C4, E8 ⚠️
+            const qcmTestBase = {
+                id: [ { texte: "Constat correct (Test)", correct: true }, { texte: "Constat erroné", correct: false } ],
+                justif: [ { texte: "Analyse du risque exacte", correct: true }, { texte: "Évaluation sans lien", correct: false } ],
+                explication: "Ceci est un QCM test de développement pour valider la zone."
+            };
+
+            donnees.anomalies = [
+                { top: "0%", left: "0%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone A1 (Haut-Gauche)"}, qcmTestBase) },   // A1
+                { top: "40%", left: "30%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone C4 (Centre)"}, qcmTestBase) },     // C4
+                { top: "80%", left: "70%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone E8 (Bas-Droite)"}, qcmTestBase) }    // E8
+            ];
 
             let anomaliesDeLimage = donnees.anomalies;
             erreursImageEnCours = 0;
@@ -573,9 +557,17 @@
             anomaliesDeLimage.forEach(anomalie => {
                 let div = document.createElement('div');
                 div.className = 'anomalie';
-                div.style.top = anomalie.top; div.style.left = anomalie.left;
-                div.style.width = anomalie.width; div.style.height = anomalie.height;
-                div.onclick = () => { if(!div.classList.contains('traitee')){ anomalieEnCours = div; ouvrirQCM(anomalie.qcm); } };
+                div.style.top = anomalie.top; 
+                div.style.left = anomalie.left;
+                div.style.width = anomalie.width; 
+                div.style.height = anomalie.height;
+                
+                div.onclick = () => { 
+                    if(!div.classList.contains('traitee')){ 
+                        anomalieEnCours = div; 
+                        ouvrirQCM(anomalie.qcm); 
+                    } 
+                };
                 conteneur.appendChild(div);
             });
         }
@@ -707,9 +699,14 @@
             renderGlobalSidebar();
         }
 
-        // Outils UI
+        // Outils UI (Bouton d'aide pour afficher/masquer les hitboxes)
         document.getElementById('fermer-croix').onclick = () => document.getElementById('qcm-modal').classList.add('cache');
-        document.getElementById('btn-toggle-zones').onclick = () => document.querySelectorAll('.anomalie:not(.traitee)').forEach(z => z.classList.toggle('visible'));
+        
+        document.getElementById('btn-toggle-zones').onclick = () => {
+            document.querySelectorAll('.anomalie:not(.traitee)').forEach(z => {
+                z.classList.toggle('visible');
+            });
+        };
 
         // ── 8. OUTIL DÉVELOPPEUR : GRILLE DE POSITIONNEMENT ───────
         const grilleOverlay = document.getElementById('grille-overlay');
