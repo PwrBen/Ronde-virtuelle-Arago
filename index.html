@@ -112,10 +112,14 @@
                     
                     <header class="consignes" style="background:none; border:none; padding:0; margin-bottom:15px; text-align:center;">
                         <h1 id="titre-mission" style="font-family:'Bebas Neue', sans-serif; font-size:2.2em; color:var(--white); margin:0;">Situation 1 / 10</h1>
-                        <p style="color:var(--gray); margin: 5px 0;">Inspectez l'image (Hitboxes de test en A1, C4, E8).</p>
+                        
+                        <!-- Conseil Paysage Mobile -->
+                        <p style="color:var(--bar-orange); font-size: 0.9em; font-weight: bold; margin: 5px 0;">📱 Sur smartphone/tablette, privilégiez le mode paysage (horizontal).</p>
+                        
                         <p style="font-weight:bold; color:var(--accent);">Anomalies traitées : <span id="score-image">0</span> / <span id="total-image">0</span></p>
                         
                         <div class="actions-ronde">
+                            <button id="btn-fullscreen" class="btn-action">🔲 Plein écran</button>
                             <button id="btn-toggle-zones" class="btn-action">Aide : Révéler les zones</button>
                             <button id="btn-passer-mission" class="btn-action btn-ras">R.A.S. / Valider la zone</button>
                         </div>
@@ -130,6 +134,31 @@
                     </main>
 
                     <button class="back-btn" onclick="retourChoix()">Interrompre la ronde</button>
+
+                    <!-- FENÊTRE MODALE : QCM (Désormais intégrée ici pour le plein écran) -->
+                    <div id="qcm-modal" class="modal cache">
+                        <div class="modal-contenu double-colonne-layout">
+                            <span id="fermer-croix" title="Fermer la fenêtre">&times;</span>
+                            <h2 id="qcm-titre" style="font-family:'Bebas Neue', sans-serif; font-size:2em; color:var(--accent); letter-spacing:1px; margin-top:0;">Analyse de la zone</h2>
+                            
+                            <div class="grille-qcm">
+                                <div class="colonne-qcm">
+                                    <h3 style="font-size:1.1em; color:var(--white); margin-bottom:10px;">1. Identification (Constat factuel)</h3>
+                                    <div id="options-id" class="options-container"></div>
+                                </div>
+                                <div class="colonne-qcm">
+                                    <h3 style="font-size:1.1em; color:var(--white); margin-bottom:10px;">2. Justification (Risque identifié)</h3>
+                                    <div id="options-justif" class="options-container"></div>
+                                </div>
+                            </div>
+
+                            <div class="actions-modal" style="text-align: center;">
+                                <button id="btn-valider-analyse" class="login-btn" style="display:none;" disabled>Valider mon analyse</button>
+                                <div id="qcm-feedback" class="feedback cache"></div>
+                                <button id="btn-fermer" class="back-btn" style="display:none; margin-top:15px;"></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- SOUS-VUE C : BILAN FINAL -->
@@ -143,31 +172,6 @@
             </div>
         </div>
     </main>
-
-    <!-- FENÊTRE MODALE : QCM DOUBLE COLONNE -->
-    <div id="qcm-modal" class="modal cache">
-        <div class="modal-contenu double-colonne-layout">
-            <span id="fermer-croix" title="Fermer la fenêtre">&times;</span>
-            <h2 id="qcm-titre" style="font-family:'Bebas Neue', sans-serif; font-size:2em; color:var(--accent); letter-spacing:1px; margin-top:0;">Analyse de la zone</h2>
-            
-            <div class="grille-qcm">
-                <div class="colonne-qcm">
-                    <h3 style="font-size:1.1em; color:var(--white); margin-bottom:10px;">1. Identification (Constat factuel)</h3>
-                    <div id="options-id" class="options-container"></div>
-                </div>
-                <div class="colonne-qcm">
-                    <h3 style="font-size:1.1em; color:var(--white); margin-bottom:10px;">2. Justification (Risque identifié)</h3>
-                    <div id="options-justif" class="options-container"></div>
-                </div>
-            </div>
-
-            <div class="actions-modal" style="text-align: center;">
-                <button id="btn-valider-analyse" class="login-btn" style="display:none;" disabled>Valider mon analyse</button>
-                <div id="qcm-feedback" class="feedback cache"></div>
-                <button id="btn-fermer" class="back-btn" style="display:none; margin-top:15px;"></button>
-            </div>
-        </div>
-    </div>
 
     <script src="script.js"></script>
 </body>
