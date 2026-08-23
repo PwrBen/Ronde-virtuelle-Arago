@@ -2,148 +2,98 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <script>
-    (function(){var s=localStorage.getItem("arago-theme");var p=window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches;if(s==="dark"||(s!=="light"&&p)){document.documentElement.setAttribute("data-theme","dark");}else{document.documentElement.setAttribute("data-theme","light");}})();
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arago Sûreté Simulator - Module d'Inspection</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- BOUTON THÈME CLAIR / SOMBRE -->
-    <div id="theme-toggle-wrap">
-        <div id="theme-toggle" onclick="toggleTheme()" role="switch" aria-label="Basculer mode sombre/clair" title="Mode sombre / Mode clair"></div>
-        <span class="toggle-label" id="toggle-label">Mode sombre</span>
+    <!-- ========================================== -->
+    <!-- ÉCRAN 1 : ACCUEIL ET CHOIX DE LA FILIÈRE   -->
+    <!-- ========================================== -->
+    <div id="ecran-accueil" class="ecran active">
+        <h1>Simulateur d'Inspection Pédagogique</h1>
+        <p>Sélectionnez votre filière pour débuter la ronde (10 situations à analyser).</p>
+        
+        <div class="choix-filiere">
+            <div class="carte-filiere" id="choix-incendie">
+                <img src="ssiap.svg" alt="Choix SSIAP" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">
+                <h2>Parcours Incendie</h2>
+                <p>Prévention, matériels de secours et dégagements.</p>
+            </div>
+            
+            <div class="carte-filiere" id="choix-surete">
+                <img src="surete.svg" alt="Choix Sûreté" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">
+                <h2>Parcours Sûreté</h2>
+                <p>Contrôle d'accès, effractions et malveillance.</p>
+            </div>
+        </div>
     </div>
 
-    <header>
-        <div class="logo">@BDOL</div>
-        <div class="header-titles">
-            <h1>Arago Sûreté Simulator</h1>
-            <h2>Module d'Inspection Pédagogique</h2>
-        </div>
-    </header>
-    
-    <main>
-        <!-- ÉCRAN 1 : CONNEXION AGENT (Nom / Prénom) -->
-        <div id="welcome-screen" class="app-screen active">
-            <div class="container-box" style="max-width: 500px; margin: 40px auto; text-align: left;">
-                <h3 style="font-family:'Bebas Neue', sans-serif; font-size:2.5em; color:var(--accent); text-align:center; margin-bottom:15px;">Identification Agent</h3>
-                <p style="text-align:center; color:var(--gray); margin-bottom:20px;">Veuillez vous identifier pour accéder au tableau de bord des rondes.</p>
-                <div class="input-group">
-                    <label for="agent-nom">Nom :</label>
-                    <input type="text" id="agent-nom" class="input-field" placeholder="Ex: Dupont" autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <label for="agent-prenom">Prénom :</label>
-                    <input type="text" id="agent-prenom" class="input-field" placeholder="Ex: Jean" autocomplete="off">
-                </div>
-                <button class="login-btn" onclick="loginAgent()">Prendre son service</button>
+    <!-- ========================================== -->
+    <!-- ÉCRAN 2 : LE JEU (LA RONDE)                -->
+    <!-- ========================================== -->
+    <div id="ecran-jeu" class="ecran">
+        <button id="btn-toggle-grille" class="btn-dev-grille">Grille (Dev)</button>
+        <header class="consignes">
+            <!-- Indicateur de progression (Bulles 1 à 10) -->
+            <div id="indicateur-progression" class="progression-container"></div>
+            
+            <h1 id="titre-mission">Mission 1 / 10</h1>
+            <p>Inspectez l'image. Si tout est normal, terminez l'inspection.</p>
+            <p>Anomalies traitées : <span id="score-image">0</span> / <span id="total-image">0</span></p>
+            
+            <!-- Regroupement des boutons d'action -->
+            <div class="actions-ronde">
+                <button id="btn-toggle-zones">Aide : Afficher les zones</button>
+                <button id="btn-passer-mission" class="btn-passer">R.A.S. / Terminer l'inspection</button>
             </div>
-        </div>
+        </header>
 
-        <!-- ÉCRAN 2 & 3 : TABLEAU DE BORD ET JEU (Conteneur global après login) -->
-        <div id="dashboard-layout" class="app-screen">
-            <!-- SIDEBAR GAUCHE -->
-            <div id="left-sidebar" class="container-box">
-                <div class="agent-id-box">
-                    <div style="font-family: 'Barlow Condensed', sans-serif; color: var(--gray); text-transform: uppercase; letter-spacing: 2px; font-size: 0.8em;">Agent en service</div>
-                    <div class="agent-name" id="display-agent-name">NOM PRENOM</div>
-                </div>
+        <main id="scene-ronde">
+            <img src="" alt="Situation de ronde" id="image-fond">
+            <!-- Overlay de la grille d'aide au positionnement -->
+            <div id="grille-overlay" class="cache"></div>
+            <!-- Conteneur des zones cliquables -->
+            <div id="conteneur-anomalies"></div>
+        </main>
+    </div>
 
-                <h3 style="margin-top: 0; color: var(--white); border-bottom: 2px solid var(--accent); padding-bottom: 8px;">Tableau de Bord</h3>
-                <div id="sidebar-progress-list"></div>
-                
-                <div style="margin-top: 25px; border-top: 1px solid var(--border); padding-top: 15px;">
-                    <button class="save-btn choice-btn" onclick="exportProgress()">💾 Sauvegarder ma progression</button>
-                    <button class="save-btn choice-btn" onclick="document.getElementById('import-file').click()">📂 Charger une progression</button>
-                    <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importProgress(event)">
-                </div>
-            </div>
+    <!-- ========================================== -->
+    <!-- ÉCRAN 3 : LE BILAN FINAL                   -->
+    <!-- ========================================== -->
+    <div id="ecran-bilan" class="ecran">
+        <h1>Bilan de la Ronde</h1>
+        <p>Voici l'évaluation de vos analyses (Vert = Parfait, Jaune = Hésitations, Rouge = Erreurs ou oublis).</p>
+        
+        <div id="grille-resultats"></div>
+        
+        <button id="btn-rejouer">Retour à l'accueil</button>
+    </div>
 
-            <!-- CONTENU CENTRAL -->
-            <div id="right-content" class="container-box">
-                
-                <!-- VUE MENU : CHOIX DE LA RONDE -->
-                <div id="menu-view" class="inner-view active">
-                    <h3 style="margin-top:0; font-family:'Bebas Neue', sans-serif; font-size:2em; color:var(--white);">Choix de la Filière de Ronde</h3>
-                    <p style="color: var(--gray); margin-bottom: 20px;">Sélectionnez votre parcours pour débuter l'inspection des 10 situations.</p>
-                    
-                    <div class="choix-filiere">
-                        <div class="carte-filiere" onclick="lancerJeu('incendie')">
-                            <img src="ssiap.svg" alt="Choix SSIAP" style="width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">
-                            <h2>Parcours Incendie</h2>
-                            <p>Prévention, matériels de secours et dégagements.</p>
-                        </div>
-                        
-                        <div class="carte-filiere" onclick="lancerJeu('surete')">
-                            <img src="surete.svg" alt="Choix Sûreté" style="width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">
-                            <h2>Parcours Sûreté</h2>
-                            <p>Contrôle d'accès, effractions et malveillance.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- VUE JEU : LA RONDE (10 SITUATIONS) -->
-                <div id="jeu-view" class="inner-view">
-                    <button id="btn-toggle-grille" class="btn-dev-grille">Grille (Dev)</button>
-                    
-                    <header class="consignes" style="background:none; border:none; padding:0; margin-bottom:15px; text-align:center;">
-                        <div id="indicateur-progression" class="progression-container"></div>
-                        <h1 id="titre-mission" style="font-family:'Bebas Neue', sans-serif; font-size:1.8em; color:var(--white);">Mission 1 / 10</h1>
-                        <p style="color:var(--gray); margin: 5px 0;">Inspectez l'image (Hitboxes de test en A1, C4, E8).</p>
-                        <p>Anomalies traitées : <span id="score-image">0</span> / <span id="total-image">0</span></p>
-                        
-                        <div class="actions-ronde">
-                            <button id="btn-toggle-zones" class="btn-action">Aide : Afficher les zones</button>
-                            <button id="btn-passer-mission" class="btn-action btn-ras">R.A.S. / Terminer l'inspection</button>
-                        </div>
-                    </header>
-
-                    <main id="scene-ronde">
-                        <img src="" alt="Situation de ronde" id="image-fond">
-                        <div id="grille-overlay" class="cache"></div>
-                        <div id="conteneur-anomalies"></div>
-                    </main>
-
-                    <button class="back-btn" onclick="goHome()">Interrompre la ronde</button>
-                </div>
-
-                <!-- VUE BILAN FINAL -->
-                <div id="bilan-view" class="inner-view">
-                    <h3 style="margin-top:0; font-family:'Bebas Neue', sans-serif; font-size:2em; color:var(--white);">Bilan de la Ronde</h3>
-                    <p style="color:var(--gray);">Voici l'évaluation de vos analyses (Vert = Parfait, Jaune = Hésitations, Rouge = Erreurs ou oublis).</p>
-                    <div id="grille-resultats"></div>
-                    <button class="back-btn" onclick="goHome()">Retour au Tableau de Bord</button>
-                </div>
-
-            </div>
-        </div>
-    </main>
-
-    <!-- FENÊTRE MODALE : QCM DOUBLE COLONNE -->
+    <!-- ========================================== -->
+    <!-- FENÊTRE MODALE : QCM DOUBLE COLONNE        -->
+    <!-- ========================================== -->
     <div id="qcm-modal" class="modal cache">
         <div class="modal-contenu double-colonne-layout">
             <span id="fermer-croix" title="Fermer la fenêtre">&times;</span>
-            <h2 id="qcm-titre" style="font-family:'Bebas Neue', sans-serif; color:var(--accent); letter-spacing:1px; margin-top:0;">Analyse de la situation</h2>
+            <h2 id="qcm-titre">Analyse de la situation</h2>
             
             <div class="grille-qcm">
                 <div class="colonne-qcm">
-                    <h3 style="font-size:1.1em; color:var(--white); margin-bottom:10px;">1. Identification (Constat factuel)</h3>
+                    <h3>1. Identification (Constat factuel)</h3>
                     <div id="options-id" class="options-container"></div>
                 </div>
                 <div class="colonne-qcm">
-                    <h3 style="font-size:1.1em; color:var(--white); margin-bottom:10px;">2. Justification (Évaluation du risque)</h3>
+                    <h3>2. Justification (Évaluation du risque)</h3>
                     <div id="options-justif" class="options-container"></div>
                 </div>
             </div>
 
-            <div class="actions-modal" style="text-align: center;">
-                <button id="btn-valider-analyse" class="login-btn" style="display:none;" disabled>Valider mon analyse</button>
-                <p id="qcm-feedback" class="feedback cache" style="margin-top:15px;"></p>
-                <button id="btn-fermer" class="back-btn" style="display:none; margin-top:15px;">Continuer</button>
+            <div class="actions-modal">
+                <button id="btn-valider-analyse" class="cache" disabled>Valider mon analyse</button>
+                <p id="qcm-feedback" class="feedback cache"></p>
+                <button id="btn-fermer" class="cache">Continuer</button>
             </div>
         </div>
     </div>
