@@ -19,126 +19,94 @@ const baseDeDonnees = {
 };
 
 // ==========================================
-// 2. VARIABLES GLOBALES ET THÈME
+// 2. VARIABLES GLOBALES
 // ==========================================
 let agentFirstName = "";
 let agentLastName = "";
 let filiereActuelle = "";
 let niveauActuel = 0;
 
-// Tracking: stocke la couleur finale obtenue pour chaque mission
+// moduleTracking stocke la couleur finale de chaque situation (10 cases)
 let moduleTracking = [];
 
 let anomaliesTotales = 0;
 let anomaliesTrouvees = 0;
-let couleursImageEnCours = []; // Stocke les couleurs obtenues pour les anomalies de l'image en cours
+let couleursImageEnCours = []; // Stocke les couleurs QCM trouvées pour la situation en cours
 
 let anomalieEnCours = null;
 let selectionId = null;
 let selectionJustif = null;
 
+// ==========================================
+// 3. THÈME CLAIR / SOMBRE
+// ==========================================
 function toggleTheme() {
     var html = document.documentElement;
-    var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    var isDark = html.getAttribute('data-theme') === 'dark';
+    var next = isDark ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
     localStorage.setItem('arago-theme', next);
     document.getElementById('toggle-label').textContent = next === 'dark' ? 'Mode sombre' : 'Mode clair';
 }
 
-// Gestion des écrans principaux
+// ==========================================
+// 4. NAVIGATION ENTRE ÉCRANS ET VUES
+// ==========================================
 function changerEcran(idEcran) {
     document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
     document.getElementById(idEcran).classList.add('active');
 }
 
-// Gestion des vues à l'intérieur du Dashboard
 function changerVueInterne(idVue) {
-    document.querySelectorAll('.inner-view').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.sub-view').forEach(e => e.classList.remove('active'));
     document.getElementById(idVue).classList.add('active');
 }
 
-// ==========================================
-// 3. WORKFLOW: ACCUEIL -> BRIEFING -> JEU
-// ==========================================
-function retourAccueil() {
-    changerEcran('ecran-accueil');
+function quitterService() {
+    changerEcran('ecran-login');
 }
 
-function choisirParcours(filiere) {
-    filiereActuelle = filiere;
-    let titre = filiere === 'incendie' ? 'Briefing - Parcours Incendie' : 'Briefing - Parcours Sûreté';
-    document.getElementById('briefing-titre').innerText = titre;
-    changerEcran('ecran-briefing');
+function retourChoix() {
+    changerVueInterne('vue-choix');
+    document.getElementById('sidebar-progress-list').innerHTML = '<p style="color:var(--gray); font-size:0.9em; text-align:center;">Veuillez choisir une mission pour afficher les indicateurs.</p>';
 }
 
+// ==========================================
+// 5. LOGIN ET SAUVEGARDE
+// ==========================================
 function loginAgent() {
     const nom = document.getElementById('agent-nom').value.trim();
     const prenom = document.getElementById('agent-prenom').value.trim();
+    
     if(!nom || !prenom) {
-        alert("La prise de service exige un Nom et un Prénom.");
+        alert("La prise de service exige la saisie de votre Nom et Prénom.");
         return;
     }
+    
     agentLastName = nom;
     agentFirstName = prenom;
     document.getElementById('display-agent-name').innerText = prenom.toUpperCase() + " " + nom.toUpperCase();
     
-    // Initialisation du tracking
-    moduleTracking = new Array(10).fill(null).map(() => ({ played: false, color: 'vide' }));
-    
     changerEcran('dashboard-layout');
-    changerVueInterne('jeu-view');
-    niveauActuel = 0;
-    chargerNiveau();
-    renderSidebar();
+    changerVueInterne('vue-choix');
 }
 
-function renderSidebar() {
-    const list = document.getElementById('sidebar-progress-list');
-    list.innerHTML = '';
-    
-    let titreText = filiereActuelle === 'incendie' ? 'Ronde SSIAP' : 'Ronde Sûreté';
-    const card = document.createElement('div');
-    card.className = 'sidebar-module-card';
-    card.innerHTML = `<h5 style="color:var(--white); margin:0 0 10px 0; font-size:1.1em;">${titreText}</h5>`;
-    
-    const dotsRow = document.createElement('div');
-    dotsRow.style.cssText = "display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;";
-    
-    moduleTracking.forEach((m, i) => {
-        const dot = document.createElement('div');
-        dot.style.cssText = "width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--gray);";
-        dot.innerText = i + 1;
-        
-        if (m.played) {
-            dot.style.color = "white";
-            dot.style.border = "none";
-            if (m.color === 'vert') dot.style.background = 'var(--bar-green)';
-            else if (m.color === 'jaune') dot.style.background = 'var(--bar-yellow)';
-            else if (m.color === 'rouge') dot.style.background = 'var(--bar-red)';
-        } else if (i === niveauActuel) {
-            dot.style.border = "2px solid var(--accent)";
-            dot.style.color = "var(--white)";
-        }
-        dotsRow.appendChild(dot);
-    });
-    
-    card.appendChild(dotsRow);
-    list.appendChild(card);
-}
-
-// ==========================================
-// 4. SAUVEGARDE ET CHARGEMENT (JSON)
-// ==========================================
 function exportProgress() {
+    if (!filiereActuelle) {
+        alert("Démarrez d'abord une ronde pour pouvoir la sauvegarder.");
+        return;
+    }
     try {
         const saveData = {
-            firstName: agentFirstName, lastName: agentLastName,
-            filiere: filiereActuelle, tracking: moduleTracking
+            firstName: agentFirstName, 
+            lastName: agentLastName,
+            filiere: filiereActuelle, 
+            tracking: moduleTracking
         };
         const blob = new Blob([JSON.stringify(saveData)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.href = url; link.download = 'ronde_sauvegarde.json';
+        link.href = url; link.download = 'sauvegarde_ronde.json';
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     } catch(e) { alert("Erreur de sauvegarde."); }
 }
@@ -150,20 +118,30 @@ function importProgress(event) {
     reader.onload = function(e) {
         try {
             const data = JSON.parse(e.target.result);
+            // Vérification de sécurité de l'agent
             if(data.firstName === document.getElementById('agent-prenom').value.trim() && data.lastName === document.getElementById('agent-nom').value.trim()) {
-                filiereActuelle = data.filiere || filiereActuelle;
+                filiereActuelle = data.filiere;
                 moduleTracking = data.tracking;
-                agentFirstName = data.firstName; agentLastName = data.lastName;
+                agentFirstName = data.firstName; 
+                agentLastName = data.lastName;
                 document.getElementById('display-agent-name').innerText = agentFirstName.toUpperCase() + " " + agentLastName.toUpperCase();
                 
-                // Reprise au premier niveau non joué
-                niveauActuel = moduleTracking.findIndex(m => !m.played);
-                if(niveauActuel === -1) { changerVueInterne('bilan-view'); afficherBilan(); } 
-                else { changerEcran('dashboard-layout'); changerVueInterne('jeu-view'); chargerNiveau(); }
+                changerEcran('dashboard-layout');
                 
-                renderSidebar();
+                // Calcul de la reprise
+                niveauActuel = moduleTracking.findIndex(m => !m.played);
+                if(niveauActuel === -1) { 
+                    changerVueInterne('vue-bilan'); 
+                    afficherBilan(); 
+                } else { 
+                    changerVueInterne('vue-jeu'); 
+                    chargerNiveau(); 
+                }
+                
                 alert("Ronde rechargée avec succès !");
-            } else { alert("Erreur : Identifiants incompatibles avec cette sauvegarde."); }
+            } else { 
+                alert("Erreur : Ce fichier de sauvegarde n'appartient pas à l'agent dont les noms sont saisis."); 
+            }
         } catch (error) { alert("Erreur de lecture du fichier."); }
     };
     reader.readAsText(file);
@@ -171,23 +149,80 @@ function importProgress(event) {
 }
 
 // ==========================================
-// 5. MOTEUR D'INSPECTION ET HITBOXES TEST
+// 6. MOTEUR D'INSPECTION (JEU ET DASHBOARD)
 // ==========================================
+function lancerJeu(filiere) {
+    filiereActuelle = filiere;
+    niveauActuel = 0;
+    // Initialisation du tableau de suivi (10 situations vides)
+    moduleTracking = new Array(10).fill(null).map(() => ({ played: false, color: 'vide' }));
+    
+    changerVueInterne('vue-jeu');
+    chargerNiveau();
+}
+
+function renderSidebar() {
+    const list = document.getElementById('sidebar-progress-list');
+    list.innerHTML = '';
+    
+    let titreText = filiereActuelle === 'incendie' ? 'Parcours Incendie' : 'Parcours Sûreté';
+    
+    const div = document.createElement('div');
+    div.style.background = 'var(--desc-card-bg)';
+    div.style.padding = '15px';
+    div.style.borderRadius = '6px';
+    div.style.border = '1px solid var(--border)';
+    
+    div.innerHTML = `<h5 style="color:var(--white); margin:0 0 10px 0; font-size:1.1em; text-align:center;">${titreText}</h5>`;
+    
+    const dotsRow = document.createElement('div');
+    dotsRow.style.cssText = "display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;";
+    
+    moduleTracking.forEach((m, i) => {
+        const dot = document.createElement('div');
+        dot.style.cssText = "width: 25px; height: 25px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold;";
+        dot.innerText = i + 1;
+        
+        if (m.played) {
+            dot.style.color = "white";
+            if (m.color === 'vert') dot.style.background = 'var(--bar-green)';
+            else if (m.color === 'jaune') { dot.style.background = 'var(--bar-yellow)'; dot.style.color = '#1a1a1a'; }
+            else if (m.color === 'rouge') dot.style.background = 'var(--bar-red)';
+            else { dot.style.background = 'var(--info-bg)'; dot.style.border = '2px dashed var(--gray)'; dot.style.color = 'var(--gray)'; }
+        } else if (i === niveauActuel) {
+            dot.style.background = "var(--accent)";
+            dot.style.color = "var(--white)";
+            dot.style.border = "2px solid var(--white)";
+            dot.style.transform = "scale(1.1)";
+        } else {
+            dot.style.background = 'var(--card)';
+            dot.style.border = '2px solid var(--border)';
+            dot.style.color = 'var(--gray)';
+        }
+        dotsRow.appendChild(dot);
+    });
+    
+    div.appendChild(dotsRow);
+    list.appendChild(div);
+}
+
 function chargerNiveau() {
     if(niveauActuel >= 10) {
         afficherBilan();
         return;
     }
 
+    renderSidebar(); // Mise à jour du dashboard de gauche
+
     const donnees = baseDeDonnees[filiereActuelle][niveauActuel];
     let anomaliesDeLimage = donnees.anomalies;
 
-    // INJECTION DES HITBOXES DE TEST EN A1, C4, E8
+    // INJECTION DES HITBOXES DE TEST EN A1, C4, E8 (SI L'IMAGE EST VIDE)
     if (anomaliesDeLimage.length === 0) {
         const qcmTest = {
             id: [ { texte: "Constat correct", correct: true }, { texte: "Constat erroné", correct: false } ],
-            justif: [ { texte: "Évaluation du risque exacte", correct: true }, { texte: "Évaluation sans lien", correct: false } ],
-            explication: "Test système pour la validation des couleurs."
+            justif: [ { texte: "Analyse du risque exacte", correct: true }, { texte: "Évaluation sans lien", correct: false } ],
+            explication: "Ceci est un QCM de test pour vérifier la fonctionnalité."
         };
         anomaliesDeLimage = [
             { top: "0%", left: "0%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone Test A1"}, qcmTest) },
@@ -198,7 +233,7 @@ function chargerNiveau() {
 
     anomaliesTrouvees = 0;
     anomaliesTotales = anomaliesDeLimage.length;
-    couleursImageEnCours = []; // Réinitialisation pour la nouvelle image
+    couleursImageEnCours = []; // Réinitialisation des couleurs obtenues
     
     document.getElementById('titre-mission').textContent = `Situation ${niveauActuel + 1} / 10`;
     document.getElementById('image-fond').src = donnees.image;
@@ -224,20 +259,20 @@ function chargerNiveau() {
         });
         conteneur.appendChild(div);
     });
-    renderSidebar();
 }
 
 function terminerImage(source) {
     let finalColor = 'vert';
     
     if (source === 'RAS' && anomaliesTrouvees < anomaliesTotales) {
-        // L'agent a validé la zone sans trouver toutes les anomalies
+        // Validation prématurée sans tout trouver = Erreur majeure
         finalColor = 'rouge';
-    } else {
-        // L'agent a trouvé les anomalies, on regarde ses scores (couleurs)
+    } else if (couleursImageEnCours.length > 0) {
+        // S'il y a eu des anomalies, on calcule la couleur globale de la situation
+        // Si au moins un rouge -> Situation rouge. Sinon si jaune -> jaune.
         if (couleursImageEnCours.includes('rouge')) finalColor = 'rouge';
         else if (couleursImageEnCours.includes('jaune')) finalColor = 'jaune';
-        else finalColor = 'vert'; // Si pas d'anomalie du tout, c'est vert
+        else finalColor = 'vert';
     }
     
     moduleTracking[niveauActuel] = { played: true, color: finalColor };
@@ -246,11 +281,11 @@ function terminerImage(source) {
     setTimeout(() => { chargerNiveau(); }, 500); 
 }
 
-// Action sur le bouton RAS
+// Action au clic sur "R.A.S / Valider la zone"
 document.getElementById('btn-passer-mission').addEventListener('click', () => terminerImage('RAS'));
 
 function afficherBilan() {
-    changerVueInterne('bilan-view');
+    changerVueInterne('vue-bilan');
     const grille = document.getElementById('grille-resultats');
     grille.innerHTML = '';
     
@@ -260,11 +295,11 @@ function afficherBilan() {
         pastille.textContent = index + 1;
         grille.appendChild(pastille);
     });
-    renderSidebar();
+    renderSidebar(); // Ultime mise à jour du dashboard
 }
 
 // ==========================================
-// 6. GESTION DU QCM (Logique 3 couleurs)
+// 7. GESTION DU QCM (Logique Rouge / Jaune / Vert)
 // ==========================================
 const modal = document.getElementById('qcm-modal');
 const btnValider = document.getElementById('btn-valider-analyse');
@@ -329,28 +364,27 @@ function verifierReponse(donneesQcm) {
 
     let couleurObtenue = '';
 
-    // LOGIQUE DU SCORE : 2/2 = Vert, 1/2 = Jaune, 0/2 = Rouge
+    // Logique demandée : 2/2 = Vert, 1/2 = Jaune, 0/2 = Rouge
     if (idCorrect && justifCorrect) {
         couleurObtenue = 'vert';
         selectionId.classList.add('correct'); selectionJustif.classList.add('correct');
         feedback.classList.add('success');
-        feedback.innerHTML = `<strong>✓ EXCELLENT (2/2)</strong><br>${donneesQcm.explication}`;
+        feedback.innerHTML = `<strong>✓ PARFAIT (2/2)</strong><br>${donneesQcm.explication}`;
     } 
     else if (idCorrect || justifCorrect) {
         couleurObtenue = 'jaune';
         if (!idCorrect) selectionId.classList.add('wrong');
         if (!justifCorrect) selectionJustif.classList.add('wrong');
         feedback.classList.add('warning');
-        feedback.innerHTML = `<strong>⚠ PARTIEL (1/2)</strong><br>${donneesQcm.explication}`;
+        feedback.innerHTML = `<strong>⚠ ANALYSE PARTIELLE (1/2)</strong><br>${donneesQcm.explication}`;
     } 
     else {
         couleurObtenue = 'rouge';
         selectionId.classList.add('wrong'); selectionJustif.classList.add('wrong');
         feedback.classList.add('error');
-        feedback.innerHTML = `<strong>✗ ERREUR (0/2)</strong><br>${donneesQcm.explication}`;
+        feedback.innerHTML = `<strong>✗ ÉCHEC DE L'ANALYSE (0/2)</strong><br>${donneesQcm.explication}`;
     }
 
-    // On stocke la couleur obtenue et on marque l'anomalie comme traitée
     couleursImageEnCours.push(couleurObtenue);
     anomalieEnCours.classList.add('traitee');
     anomalieEnCours.classList.remove('visible');
@@ -360,8 +394,8 @@ function verifierReponse(donneesQcm) {
 
     btnFermer.style.display = 'inline-block';
     if(anomaliesTrouvees === anomaliesTotales) {
-        btnFermer.textContent = "Validation (Fin de l'inspection)";
-        btnFermer.onclick = () => { modal.classList.add('cache'); terminerImage('FINI'); };
+        btnFermer.textContent = "Fin de l'inspection de la zone";
+        btnFermer.onclick = () => { modal.classList.add('cache'); terminerImage('FIN_NORMALE'); };
     } else {
         btnFermer.textContent = "Continuer la ronde";
         btnFermer.onclick = () => modal.classList.add('cache');
@@ -376,7 +410,7 @@ document.getElementById('btn-toggle-zones').addEventListener('click', () => {
 });
 
 // ==========================================
-// 7. OUTIL DÉVELOPPEUR : GRILLE DE POSITIONNEMENT
+// 8. OUTIL DÉVELOPPEUR : GRILLE DE POSITIONNEMENT
 // ==========================================
 const grilleOverlay = document.getElementById('grille-overlay');
 const lettresLignes = ['A', 'B', 'C', 'D', 'E'];
