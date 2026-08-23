@@ -31,12 +31,12 @@
         <!-- ÉCRAN 1 : BRIEFING ET PRISE DE SERVICE     -->
         <!-- ========================================== -->
         <div id="ecran-login" class="screen active">
-            <div class="container-box" style="max-width: 600px; margin: 40px auto;">
+            <div class="container-box" style="max-width: 600px; margin: 40px auto; text-align: left;">
                 <h3 style="font-family:'Bebas Neue', sans-serif; font-size:2.5em; color:var(--accent); text-align:center; border-bottom:1px solid var(--border); padding-bottom:10px; margin-top: 0;">Briefing Opérationnel</h3>
                 
                 <p style="color:var(--light); font-size:1.1em; line-height:1.5; margin:20px 0; text-align:justify;">
                     Vous allez être déployé sur site. Votre mission est d'effectuer une ronde de sécurité et d'inspecter 10 zones distinctes.<br><br>
-                    <strong>Vos consignes :</strong> Repérez les anomalies, qualifiez le risque avec précision et validez l'intervention. Une analyse partielle ou un oubli pénalisera l'évaluation de votre compte rendu.
+                    <strong>Vos consignes :</strong> Repérez les anomalies, qualifiez le risque avec précision et validez l'intervention.
                 </p>
                 
                 <div style="background:var(--info-bg); padding:20px; border-radius:8px; border:1px solid var(--border);">
@@ -52,9 +52,8 @@
                     <button class="login-btn" onclick="loginAgent()">Prendre son service</button>
                     
                     <div style="margin-top:20px; text-align:center; border-top:1px dashed var(--border); padding-top:15px;">
-                        <span style="font-size:0.9em; color:var(--gray); display:block; margin-bottom:10px;">Reprendre une ronde précédente ?</span>
                         <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importProgress(event)">
-                        <button class="btn-action" onclick="document.getElementById('import-file').click()">📂 Charger ma sauvegarde</button>
+                        <button class="btn-action" style="background:transparent; color:var(--gray);" onclick="document.getElementById('import-file').click()">📂 Charger une ronde précédente</button>
                     </div>
                 </div>
             </div>
@@ -89,7 +88,7 @@
                 <!-- SOUS-VUE A : CHOIX DE LA MISSION -->
                 <div id="vue-choix" class="sub-view active">
                     <h3 style="margin-top:0; font-family:'Bebas Neue', sans-serif; font-size:2em; color:var(--white);">Choix de la Ronde</h3>
-                    <p style="color: var(--gray); margin-bottom: 20px;">Sélectionnez votre parcours pour débuter l'inspection (10 situations à analyser).</p>
+                    <p style="color: var(--gray); margin-bottom: 20px;">Sélectionnez votre parcours pour débuter l'inspection.</p>
                     
                     <div class="choix-filiere">
                         <div class="carte-filiere" onclick="lancerJeu('incendie')">
@@ -123,9 +122,9 @@
 
                     <main id="scene-ronde">
                         <img src="" alt="Situation de ronde" id="image-fond">
-                        <!-- Grille A1 à E10 -->
+                        <!-- Overlay de la grille d'aide au positionnement -->
                         <div id="grille-overlay" class="cache"></div>
-                        <!-- Conteneur obligatoire en absolu -->
+                        <!-- Conteneur des zones cliquables -->
                         <div id="conteneur-anomalies"></div>
                     </main>
 

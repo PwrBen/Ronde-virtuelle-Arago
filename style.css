@@ -66,6 +66,7 @@ body {
     font-family: 'Barlow', sans-serif; 
     background-color: var(--navy); 
     color: var(--light); 
+    text-align: center; /* Important pour centrer scene-ronde */
     transition: background 0.3s, color 0.3s;
 }
 
@@ -78,6 +79,7 @@ header {
 }
 
 .logo { font-size: 2.2em; font-family: 'Bebas Neue', sans-serif; color: var(--accent); letter-spacing: 2px; margin-right: 20px; }
+.header-titles { text-align: left; }
 .header-titles h1 { margin: 0; font-size: 1.8em; font-family: 'Bebas Neue', sans-serif; color: var(--white); letter-spacing: 2px;}
 .header-titles h2 { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 300; font-size: 1.1em; color: var(--gray); letter-spacing: 4px; text-transform: uppercase;}
 
@@ -136,43 +138,38 @@ button { cursor: pointer; transition: 0.2s; font-family: 'Barlow Condensed', san
 .agent-id-box { background: var(--info-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center; }
 .agent-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.8em; color: var(--accent); letter-spacing: 2px; }
 
-/* SCÈNE DE RONDE ET HITBOXES */
-#scene-ronde { 
-    position: relative; 
-    display: block; 
-    width: 100%; 
-    max-width: 900px; 
-    aspect-ratio: 4 / 3;
-    margin: 0 auto;
-    border: 3px solid var(--border); 
-    border-radius: 8px; 
-    overflow: hidden; 
-    background: #000;
+/* ========================================== */
+/* SCÈNE DE RONDE ET HITBOXES (Mode Original) */
+/* ========================================== */
+#scene-ronde {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 900px;
+    border: 3px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 20px;
 }
-#image-fond { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-#conteneur-anomalies {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; /* Laisse passer les clics vers les anomalies */
-}
+#image-fond { width: 100%; display: block; }
 
 .anomalie {
     position: absolute;
     cursor: pointer;
     background-color: transparent;
-    border: 2px solid transparent;
+    border: none;
     transition: 0.3s;
-    z-index: 150;
-    pointer-events: auto; /* Rend la zone cliquable */
+    z-index: 50;
 }
-.anomalie.visible { background-color: rgba(231, 76, 60, 0.4) !important; border: 2px dashed #ffffff !important; }
+.anomalie.visible { background-color: rgba(231, 76, 60, 0.3); border: 1px dashed rgba(255, 255, 255, 0.5); }
+.anomalie.visible:hover { background-color: rgba(231, 76, 60, 0.6); }
 .anomalie.traitee { background-color: rgba(46, 204, 113, 0.5) !important; border: 2px solid #2ecc71 !important; pointer-events: none; }
 
 /* MODALE QCM */
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; }
 .modal.cache { display: none !important; }
-.modal-contenu { background: var(--card); color: var(--white); padding: 25px; border-radius: 8px; max-width: 800px; width: 95%; border: 1px solid var(--border); position: relative; }
+.modal-contenu { background: var(--card); color: var(--white); padding: 25px; border-radius: 8px; max-width: 800px; width: 95%; border: 1px solid var(--border); position: relative; text-align: left; }
 .grille-qcm { display: flex; gap: 20px; margin-bottom: 20px; }
 .colonne-qcm { flex: 1; background: var(--info-bg); padding: 15px; border-radius: 5px; border: 1px solid var(--border); }
 .options-container { display: flex; flex-direction: column; gap: 8px; }
@@ -193,10 +190,49 @@ button { cursor: pointer; transition: 0.2s; font-family: 'Barlow Condensed', san
 .pastille.vide { background-color: var(--info-bg); border: 2px dashed var(--border); color: var(--gray); }
 
 /* OUTIL GRILLE DÉVELOPPEUR */
-.btn-dev-grille { position: fixed; left: 0; top: 50%; transform: translateY(-50%); background-color: #8e44ad; color: white; border: none; padding: 15px 5px; border-radius: 0 5px 5px 0; cursor: pointer; font-size: 14px; z-index: 2000; writing-mode: vertical-rl; text-orientation: mixed; }
-#grille-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(5, 1fr); pointer-events: none; z-index: 100; }
+.btn-dev-grille {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #8e44ad;
+    color: white;
+    border: none;
+    padding: 15px 5px;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 2000;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transition: 0.2s;
+}
+.btn-dev-grille:hover { background-color: #9b59b6; }
+
+#grille-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    pointer-events: none;
+    z-index: 100;
+}
 #grille-overlay.cache { display: none !important; }
-.cellule-grille { border: 1px solid rgba(255, 255, 255, 0.4); background-color: rgba(0, 0, 0, 0.1); color: rgba(255, 255, 255, 0.9); padding: 5px; font-size: 12px; font-weight: bold; }
+
+.cellule-grille {
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background-color: rgba(0, 0, 0, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+}
 
 /* TOGGLE SWITCH THÈME */
 #theme-toggle-wrap { position: fixed; bottom: 24px; left: 24px; z-index: 3001; display: flex; align-items: center; gap: 10px; }

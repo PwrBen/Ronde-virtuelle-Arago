@@ -87,7 +87,6 @@ function loginAgent() {
     agentFirstName = prenom;
     document.getElementById('display-agent-name').innerText = prenom.toUpperCase() + " " + nom.toUpperCase();
     
-    // On passe directement à l'écran du Tableau de bord, sur la vue de choix.
     changerEcran('dashboard-layout');
     changerVueInterne('vue-choix');
 }
@@ -154,7 +153,6 @@ function importProgress(event) {
 function lancerJeu(filiere) {
     filiereActuelle = filiere;
     niveauActuel = 0;
-    // Initialisation de la progression
     moduleTracking = new Array(10).fill(null).map(() => ({ played: false, color: 'vide' }));
     
     changerVueInterne('vue-jeu');
@@ -217,17 +215,25 @@ function chargerNiveau() {
     const donnees = baseDeDonnees[filiereActuelle][niveauActuel];
     let anomaliesDeLimage = donnees.anomalies;
 
-    // INJECTION DES HITBOXES EN A1, C4, E8 SI L'IMAGE EST VIDE
+    // INJECTION AUTOMATIQUE DE TEST : si aucune anomalie n'est configurée, on injecte A1, C4, E8
     if (anomaliesDeLimage.length === 0) {
         const qcmTest = {
-            id: [ { texte: "Constat correct", correct: true }, { texte: "Constat erroné", correct: false } ],
-            justif: [ { texte: "Analyse du risque exacte", correct: true }, { texte: "Évaluation sans lien", correct: false } ],
-            explication: "Ceci est un QCM de test généré par le système."
+            titre: "Zone de Test (QCM Vierge)",
+            id: [
+                { texte: "Bonne identification (Test)", correct: true },
+                { texte: "Mauvaise identification", correct: false }
+            ],
+            justif: [
+                { texte: "Bonne justification (Test)", correct: true },
+                { texte: "Mauvaise justification", correct: false }
+            ],
+            explication: "Ceci est une explication de test générée automatiquement."
         };
+
         anomaliesDeLimage = [
-            { top: "0%", left: "0%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone A1"}, qcmTest) },
-            { top: "40%", left: "30%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone C4"}, qcmTest) },
-            { top: "80%", left: "70%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone E8"}, qcmTest) }
+            { top: "0%", left: "0%", width: "10%", height: "20%", qcm: qcmTest },    // Case A1
+            { top: "40%", left: "30%", width: "10%", height: "20%", qcm: qcmTest },  // Case C4
+            { top: "80%", left: "70%", width: "10%", height: "20%", qcm: qcmTest }   // Case E8
         ];
     }
 
@@ -240,32 +246,35 @@ function chargerNiveau() {
     document.getElementById('score-image').textContent = "0";
     document.getElementById('total-image').textContent = anomaliesTotales;
 
+    // Utilisation de la div existante (comportement original fonctionnel)
     const conteneur = document.getElementById('conteneur-anomalies');
-    conteneur.innerHTML = '';
-    
-    anomaliesDeLimage.forEach(anomalie => {
-        let div = document.createElement('div');
-        div.classList.add('anomalie');
-        div.style.top = anomalie.top;
-        div.style.left = anomalie.left;
-        div.style.width = anomalie.width;
-        div.style.height = anomalie.height;
+    if(conteneur) {
+        conteneur.innerHTML = '';
         
-        div.addEventListener('click', () => {
-            if(!div.classList.contains('traitee')){
-                anomalieEnCours = div;
-                ouvrirQCM(anomalie.qcm);
-            }
+        anomaliesDeLimage.forEach(anomalie => {
+            let div = document.createElement('div');
+            div.classList.add('anomalie');
+            div.style.top = anomalie.top;
+            div.style.left = anomalie.left;
+            div.style.width = anomalie.width;
+            div.style.height = anomalie.height;
+            
+            div.addEventListener('click', () => {
+                if(!div.classList.contains('traitee')){
+                    anomalieEnCours = div;
+                    ouvrirQCM(anomalie.qcm);
+                }
+            });
+            conteneur.appendChild(div);
         });
-        conteneur.appendChild(div);
-    });
+    }
 }
 
 function terminerImage(source) {
     let finalColor = 'vert';
     
     if (source === 'RAS' && anomaliesTrouvees < anomaliesTotales) {
-        // L'agent a cliqué sur R.A.S alors qu'il manquait des anomalies = Rouge direct
+        // Validation prématurée sans tout trouver = Erreur majeure
         finalColor = 'rouge';
     } else if (couleursImageEnCours.length > 0) {
         // La couleur globale de l'image est déterminée par la pire erreur
@@ -280,7 +289,7 @@ function terminerImage(source) {
     setTimeout(() => { chargerNiveau(); }, 500); 
 }
 
-// Action sur le bouton RAS
+// Action au clic sur "R.A.S / Valider la zone"
 document.getElementById('btn-passer-mission').addEventListener('click', () => terminerImage('RAS'));
 
 function afficherBilan() {
@@ -298,7 +307,7 @@ function afficherBilan() {
 }
 
 // ==========================================
-// 7. GESTION DU QCM (Logique Vert / Jaune / Rouge)
+// 7. GESTION DU QCM (Rouge / Jaune / Vert)
 // ==========================================
 const modal = document.getElementById('qcm-modal');
 const btnValider = document.getElementById('btn-valider-analyse');
