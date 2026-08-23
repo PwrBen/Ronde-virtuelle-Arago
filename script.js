@@ -31,7 +31,7 @@ let moduleTracking = [];
 
 let anomaliesTotales = 0;
 let anomaliesTrouvees = 0;
-let couleursImageEnCours = []; // Stocke les couleurs QCM trouvées pour la situation en cours
+let couleursImageEnCours = [];
 
 let anomalieEnCours = null;
 let selectionId = null;
@@ -87,6 +87,7 @@ function loginAgent() {
     agentFirstName = prenom;
     document.getElementById('display-agent-name').innerText = prenom.toUpperCase() + " " + nom.toUpperCase();
     
+    // On passe directement à l'écran du Tableau de bord, sur la vue de choix.
     changerEcran('dashboard-layout');
     changerVueInterne('vue-choix');
 }
@@ -118,7 +119,7 @@ function importProgress(event) {
     reader.onload = function(e) {
         try {
             const data = JSON.parse(e.target.result);
-            // Vérification de sécurité de l'agent
+            // Vérification de l'agent
             if(data.firstName === document.getElementById('agent-prenom').value.trim() && data.lastName === document.getElementById('agent-nom').value.trim()) {
                 filiereActuelle = data.filiere;
                 moduleTracking = data.tracking;
@@ -128,7 +129,6 @@ function importProgress(event) {
                 
                 changerEcran('dashboard-layout');
                 
-                // Calcul de la reprise
                 niveauActuel = moduleTracking.findIndex(m => !m.played);
                 if(niveauActuel === -1) { 
                     changerVueInterne('vue-bilan'); 
@@ -154,7 +154,7 @@ function importProgress(event) {
 function lancerJeu(filiere) {
     filiereActuelle = filiere;
     niveauActuel = 0;
-    // Initialisation du tableau de suivi (10 situations vides)
+    // Initialisation de la progression
     moduleTracking = new Array(10).fill(null).map(() => ({ played: false, color: 'vide' }));
     
     changerVueInterne('vue-jeu');
@@ -212,28 +212,28 @@ function chargerNiveau() {
         return;
     }
 
-    renderSidebar(); // Mise à jour du dashboard de gauche
+    renderSidebar();
 
     const donnees = baseDeDonnees[filiereActuelle][niveauActuel];
     let anomaliesDeLimage = donnees.anomalies;
 
-    // INJECTION DES HITBOXES DE TEST EN A1, C4, E8 (SI L'IMAGE EST VIDE)
+    // INJECTION DES HITBOXES EN A1, C4, E8 SI L'IMAGE EST VIDE
     if (anomaliesDeLimage.length === 0) {
         const qcmTest = {
             id: [ { texte: "Constat correct", correct: true }, { texte: "Constat erroné", correct: false } ],
             justif: [ { texte: "Analyse du risque exacte", correct: true }, { texte: "Évaluation sans lien", correct: false } ],
-            explication: "Ceci est un QCM de test pour vérifier la fonctionnalité."
+            explication: "Ceci est un QCM de test généré par le système."
         };
         anomaliesDeLimage = [
-            { top: "0%", left: "0%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone Test A1"}, qcmTest) },
-            { top: "40%", left: "30%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone Test C4"}, qcmTest) },
-            { top: "80%", left: "70%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone Test E8"}, qcmTest) }
+            { top: "0%", left: "0%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone A1"}, qcmTest) },
+            { top: "40%", left: "30%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone C4"}, qcmTest) },
+            { top: "80%", left: "70%", width: "10%", height: "20%", qcm: Object.assign({titre: "Zone E8"}, qcmTest) }
         ];
     }
 
     anomaliesTrouvees = 0;
     anomaliesTotales = anomaliesDeLimage.length;
-    couleursImageEnCours = []; // Réinitialisation des couleurs obtenues
+    couleursImageEnCours = [];
     
     document.getElementById('titre-mission').textContent = `Situation ${niveauActuel + 1} / 10`;
     document.getElementById('image-fond').src = donnees.image;
@@ -265,11 +265,10 @@ function terminerImage(source) {
     let finalColor = 'vert';
     
     if (source === 'RAS' && anomaliesTrouvees < anomaliesTotales) {
-        // Validation prématurée sans tout trouver = Erreur majeure
+        // L'agent a cliqué sur R.A.S alors qu'il manquait des anomalies = Rouge direct
         finalColor = 'rouge';
     } else if (couleursImageEnCours.length > 0) {
-        // S'il y a eu des anomalies, on calcule la couleur globale de la situation
-        // Si au moins un rouge -> Situation rouge. Sinon si jaune -> jaune.
+        // La couleur globale de l'image est déterminée par la pire erreur
         if (couleursImageEnCours.includes('rouge')) finalColor = 'rouge';
         else if (couleursImageEnCours.includes('jaune')) finalColor = 'jaune';
         else finalColor = 'vert';
@@ -281,7 +280,7 @@ function terminerImage(source) {
     setTimeout(() => { chargerNiveau(); }, 500); 
 }
 
-// Action au clic sur "R.A.S / Valider la zone"
+// Action sur le bouton RAS
 document.getElementById('btn-passer-mission').addEventListener('click', () => terminerImage('RAS'));
 
 function afficherBilan() {
@@ -295,11 +294,11 @@ function afficherBilan() {
         pastille.textContent = index + 1;
         grille.appendChild(pastille);
     });
-    renderSidebar(); // Ultime mise à jour du dashboard
+    renderSidebar(); 
 }
 
 // ==========================================
-// 7. GESTION DU QCM (Logique Rouge / Jaune / Vert)
+// 7. GESTION DU QCM (Logique Vert / Jaune / Rouge)
 // ==========================================
 const modal = document.getElementById('qcm-modal');
 const btnValider = document.getElementById('btn-valider-analyse');

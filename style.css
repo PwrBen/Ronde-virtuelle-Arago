@@ -21,6 +21,8 @@
   --correct-text:   #2ecc71;
   --wrong-bg:       rgba(192, 57, 43, 0.15);
   --wrong-text:     #e74c3c;
+  --partial-bg:     rgba(241, 196, 15, 0.15);
+  --partial-text:   #f1c40f;
   
   --bar-red:        #e74c3c;
   --bar-orange:     #e67e22;
@@ -49,6 +51,8 @@
   --correct-text:   #27ae60;
   --wrong-bg:       rgba(192, 57, 43, 0.1);
   --wrong-text:     #c0392b;
+  --partial-bg:     rgba(241, 196, 15, 0.1);
+  --partial-text:   #b7950b;
 
   --bar-red:        #c0392b;
   --bar-orange:     #d35400;
@@ -128,7 +132,7 @@ button { cursor: pointer; transition: 0.2s; font-family: 'Barlow Condensed', san
 .btn-ras { background-color: var(--bar-orange); border: none; color: white; }
 .btn-ras:hover { filter: brightness(1.1); }
 
-/* SIDEBAR INDICATEURS (Type Ludique) */
+/* SIDEBAR INDICATEURS */
 .agent-id-box { background: var(--info-bg); padding: 15px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center; }
 .agent-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.8em; color: var(--accent); letter-spacing: 2px; }
 
@@ -150,7 +154,7 @@ button { cursor: pointer; transition: 0.2s; font-family: 'Barlow Condensed', san
 #conteneur-anomalies {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; /* Crucial pour laisser passer les clics globaux */
+    pointer-events: none; /* Laisse passer les clics vers les anomalies */
 }
 
 .anomalie {
@@ -160,7 +164,7 @@ button { cursor: pointer; transition: 0.2s; font-family: 'Barlow Condensed', san
     border: 2px solid transparent;
     transition: 0.3s;
     z-index: 150;
-    pointer-events: auto; /* Active le clic sur la zone */
+    pointer-events: auto; /* Rend la zone cliquable */
 }
 .anomalie.visible { background-color: rgba(231, 76, 60, 0.4) !important; border: 2px dashed #ffffff !important; }
 .anomalie.traitee { background-color: rgba(46, 204, 113, 0.5) !important; border: 2px solid #2ecc71 !important; pointer-events: none; }
@@ -177,7 +181,7 @@ button { cursor: pointer; transition: 0.2s; font-family: 'Barlow Condensed', san
 .feedback { margin-top: 15px; padding: 15px; border-radius: 5px; font-size: 1.05em; display: none; background: var(--desc-card-bg); border: 1px solid var(--border); text-align: left; line-height: 1.4;}
 .feedback.active { display: block; }
 .feedback.success { border-left: 5px solid var(--bar-green); color: var(--correct-text); }
-.feedback.warning { border-left: 5px solid var(--bar-yellow); color: var(--bar-yellow); }
+.feedback.warning { border-left: 5px solid var(--bar-yellow); color: var(--partial-text); }
 .feedback.error { border-left: 5px solid var(--bar-red); color: var(--wrong-text); }
 
 /* GRILLE RÉSULTATS BILAN */

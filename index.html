@@ -32,7 +32,7 @@
         <!-- ========================================== -->
         <div id="ecran-login" class="screen active">
             <div class="container-box" style="max-width: 600px; margin: 40px auto;">
-                <h3 style="font-family:'Bebas Neue', sans-serif; font-size:2.5em; color:var(--accent); text-align:center; border-bottom:1px solid var(--border); padding-bottom:10px;">Briefing Opérationnel</h3>
+                <h3 style="font-family:'Bebas Neue', sans-serif; font-size:2.5em; color:var(--accent); text-align:center; border-bottom:1px solid var(--border); padding-bottom:10px; margin-top: 0;">Briefing Opérationnel</h3>
                 
                 <p style="color:var(--light); font-size:1.1em; line-height:1.5; margin:20px 0; text-align:justify;">
                     Vous allez être déployé sur site. Votre mission est d'effectuer une ronde de sécurité et d'inspecter 10 zones distinctes.<br><br>
@@ -61,11 +61,11 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- DASHBOARD GLOBAL (Visible après Login)     -->
+        <!-- ÉCRAN 2 : DASHBOARD GLOBAL                 -->
         <!-- ========================================== -->
         <div id="dashboard-layout" class="screen">
             
-            <!-- SIDEBAR GAUCHE (Tableau de bord) -->
+            <!-- SIDEBAR GAUCHE (Tableau de bord persistant) -->
             <div id="left-sidebar" class="container-box">
                 <div class="agent-id-box">
                     <div style="font-family: 'Barlow Condensed', sans-serif; color: var(--gray); text-transform: uppercase; letter-spacing: 2px; font-size: 0.8em;">Agent en service</div>
@@ -74,7 +74,6 @@
 
                 <h3 style="margin-top: 0; color: var(--white); border-bottom: 2px solid var(--accent); padding-bottom: 8px;">Progression</h3>
                 <div id="sidebar-progress-list">
-                    <!-- Les indicateurs de la ronde apparaîtront ici -->
                     <p style="color:var(--gray); font-size:0.9em; text-align:center;">Veuillez choisir une mission pour afficher les indicateurs.</p>
                 </div>
                 
@@ -84,10 +83,10 @@
                 <button class="back-btn" style="margin-top: 15px;" onclick="quitterService()">Fin de service (Quitter)</button>
             </div>
 
-            <!-- CONTENU CENTRAL -->
+            <!-- CONTENU CENTRAL DYNAMIQUE -->
             <div id="right-content" class="container-box">
                 
-                <!-- SOUS-ÉCRAN 1 : CHOIX DE LA MISSION -->
+                <!-- SOUS-VUE A : CHOIX DE LA MISSION -->
                 <div id="vue-choix" class="sub-view active">
                     <h3 style="margin-top:0; font-family:'Bebas Neue', sans-serif; font-size:2em; color:var(--white);">Choix de la Ronde</h3>
                     <p style="color: var(--gray); margin-bottom: 20px;">Sélectionnez votre parcours pour débuter l'inspection (10 situations à analyser).</p>
@@ -95,25 +94,25 @@
                     <div class="choix-filiere">
                         <div class="carte-filiere" onclick="lancerJeu('incendie')">
                             <img src="ssiap.svg" alt="Choix SSIAP" style="width: 100%; height: 160px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">
-                            <h2 style="font-family:'Bebas Neue', sans-serif; color:var(--white); font-size:1.5em;">Parcours Incendie</h2>
-                            <p style="color:var(--gray);">Prévention, matériels de secours et dégagements.</p>
+                            <h2 style="font-family:'Bebas Neue', sans-serif; color:var(--white); font-size:1.5em; margin: 0;">Parcours Incendie</h2>
+                            <p style="color:var(--gray); margin-top:5px;">Prévention, matériels de secours et dégagements.</p>
                         </div>
                         
                         <div class="carte-filiere" onclick="lancerJeu('surete')">
                             <img src="surete.svg" alt="Choix Sûreté" style="width: 100%; height: 160px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">
-                            <h2 style="font-family:'Bebas Neue', sans-serif; color:var(--white); font-size:1.5em;">Parcours Sûreté</h2>
-                            <p style="color:var(--gray);">Contrôle d'accès, effractions et malveillance.</p>
+                            <h2 style="font-family:'Bebas Neue', sans-serif; color:var(--white); font-size:1.5em; margin: 0;">Parcours Sûreté</h2>
+                            <p style="color:var(--gray); margin-top:5px;">Contrôle d'accès, effractions et malveillance.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- SOUS-ÉCRAN 2 : LE JEU (LA RONDE) -->
+                <!-- SOUS-VUE B : LE JEU (LA RONDE) -->
                 <div id="vue-jeu" class="sub-view">
                     <button id="btn-toggle-grille" class="btn-dev-grille">Grille (Dev)</button>
                     
                     <header class="consignes" style="background:none; border:none; padding:0; margin-bottom:15px; text-align:center;">
-                        <h1 id="titre-mission" style="font-family:'Bebas Neue', sans-serif; font-size:2em; color:var(--white); margin:0;">Situation 1 / 10</h1>
-                        <p style="color:var(--gray); margin: 5px 0;">Inspectez l'image attentivement.</p>
+                        <h1 id="titre-mission" style="font-family:'Bebas Neue', sans-serif; font-size:2.2em; color:var(--white); margin:0;">Situation 1 / 10</h1>
+                        <p style="color:var(--gray); margin: 5px 0;">Inspectez l'image (Hitboxes de test en A1, C4, E8).</p>
                         <p style="font-weight:bold; color:var(--accent);">Anomalies traitées : <span id="score-image">0</span> / <span id="total-image">0</span></p>
                         
                         <div class="actions-ronde">
@@ -133,9 +132,9 @@
                     <button class="back-btn" onclick="retourChoix()">Interrompre la ronde</button>
                 </div>
 
-                <!-- SOUS-ÉCRAN 3 : BILAN FINAL -->
+                <!-- SOUS-VUE C : BILAN FINAL -->
                 <div id="vue-bilan" class="sub-view">
-                    <h3 style="margin-top:0; font-family:'Bebas Neue', sans-serif; font-size:2.5em; color:var(--white); text-align:center;">Bilan de la Ronde</h3>
+                    <h3 style="margin-top:0; font-family:'Bebas Neue', sans-serif; font-size:2.5em; color:var(--white); text-align:center;">Fin de Ronde</h3>
                     <p style="color:var(--gray); text-align:center;">Synthèse de vos interventions sur le secteur.</p>
                     <div id="grille-resultats"></div>
                     <button class="login-btn" style="margin-top:30px;" onclick="retourChoix()">Retour au PCS (Nouvelle ronde)</button>
@@ -157,14 +156,14 @@
                     <div id="options-id" class="options-container"></div>
                 </div>
                 <div class="colonne-qcm">
-                    <h3 style="font-size:1.1em; color:var(--white); margin-bottom:10px;">2. Justification (Évaluation du risque)</h3>
+                    <h3 style="font-size:1.1em; color:var(--white); margin-bottom:10px;">2. Justification (Risque identifié)</h3>
                     <div id="options-justif" class="options-container"></div>
                 </div>
             </div>
 
             <div class="actions-modal" style="text-align: center;">
                 <button id="btn-valider-analyse" class="login-btn" style="display:none;" disabled>Valider mon analyse</button>
-                <div id="qcm-feedback" class="feedback"></div>
+                <div id="qcm-feedback" class="feedback cache"></div>
                 <button id="btn-fermer" class="back-btn" style="display:none; margin-top:15px;"></button>
             </div>
         </div>
