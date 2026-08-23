@@ -48,42 +48,31 @@ function toggleTheme() {
 }
 
 // ==========================================
-// 4. PLEIN ÉCRAN (Fullscreen API)
+// 4. PLEIN ÉCRAN (Optimisé Smartphone)
 // ==========================================
-document.getElementById('btn-fullscreen').addEventListener('click', () => {
-    const elem = document.getElementById('vue-jeu');
+const btnFullscreen = document.getElementById('btn-fullscreen');
+const vueJeu = document.getElementById('vue-jeu');
+
+btnFullscreen.addEventListener('click', () => {
+    // On bascule la classe CSS "css-fullscreen"
+    vueJeu.classList.toggle('css-fullscreen');
     
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        // Alerte si on est sur mobile/tablette en mode portrait
-        if (window.innerHeight > window.innerWidth && window.innerWidth < 1024) {
-            alert("📱 ASTUCE : Tournez votre appareil en mode paysage (à l'horizontale) pour une meilleure immersion !");
-        }
+    if (vueJeu.classList.contains('css-fullscreen')) {
+        btnFullscreen.innerHTML = "🔳 Quitter le plein écran";
         
-        if (elem.requestFullscreen) { elem.requestFullscreen(); } 
-        else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
+        // Détection de l'orientation sur smartphone
+        if (window.innerHeight > window.innerWidth && window.innerWidth < 1024) {
+            alert("📱 ASTUCE : Pour une meilleure analyse, tournez votre appareil à l'horizontale (mode paysage) !");
+        }
     } else {
-        forceExitFullscreen();
+        btnFullscreen.innerHTML = "🔲 Plein écran";
     }
 });
 
 function forceExitFullscreen() {
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-        if (document.exitFullscreen) document.exitFullscreen();
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    }
-}
-
-// Changer le texte du bouton selon l'état
-document.addEventListener('fullscreenchange', updateFullscreenBtn);
-document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
-
-function updateFullscreenBtn() {
-    const btn = document.getElementById('btn-fullscreen');
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-        btn.innerHTML = "🔳 Quitter le plein écran";
-    } else {
-        btn.innerHTML = "🔲 Plein écran";
-    }
+    // Utilisé pour forcer la sortie du plein écran à la fin de la ronde
+    vueJeu.classList.remove('css-fullscreen');
+    btnFullscreen.innerHTML = "🔲 Plein écran";
 }
 
 // ==========================================
