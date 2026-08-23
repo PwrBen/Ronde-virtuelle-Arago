@@ -207,45 +207,13 @@ button { cursor: pointer; transition: 0.2s; font-family: 'Barlow Condensed', san
 .toggle-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray); background: var(--card); padding: 5px 10px; border-radius: 4px; border: 1px solid var(--border); }
 
 /* ========================================== */
-/* COMPORTEMENT PLEIN ECRAN OPTIMISÉ MOBILE   */
+/* COMPORTEMENT PLEIN ECRAN (Nouveau)         */
 /* ========================================== */
-.css-fullscreen {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: 9999 !important;
-    background-color: var(--navy) !important;
-    margin: 0 !important;
-    padding: 10px !important;
-    box-sizing: border-box !important;
-    overflow-y: auto !important;
-    border-radius: 0 !important;
-}
+#vue-jeu:-webkit-full-screen { background-color: var(--navy); padding: 15px; overflow-y: auto; }
+#vue-jeu:fullscreen { background-color: var(--navy); padding: 15px; overflow-y: auto; }
+#vue-jeu:-webkit-full-screen #scene-ronde { max-width: 1300px; max-height: 75vh; }
+#vue-jeu:fullscreen #scene-ronde { max-width: 1300px; max-height: 75vh; }
 
-/* En plein écran, on force l'image à prendre le maximum de place */
-.css-fullscreen #scene-ronde {
-    max-width: 100% !important;
-    height: 70vh !important; /* Laisse 30% pour les boutons et titres */
-    aspect-ratio: auto !important;
-    margin-top: 10px !important;
-}
-
-.css-fullscreen #image-fond {
-    height: 100% !important;
-    object-fit: contain !important; /* Empêche l'image d'être coupée */
-}
-
-/* Sur mobile, on réduit un peu les marges en plein écran */
 @media (max-width: 768px) {
-    .css-fullscreen .actions-ronde {
-        flex-wrap: wrap;
-        gap: 5px;
-    }
-    .css-fullscreen .btn-action {
-        font-size: 0.9em;
-        padding: 8px 10px;
-    }
     .grille-qcm { flex-direction: column; gap: 10px; }
 }
