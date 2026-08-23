@@ -26,7 +26,9 @@ let agentLastName = "";
 let filiereActuelle = "";
 let niveauActuel = 0;
 
+// moduleTracking stocke la couleur finale de chaque situation (10 cases)
 let moduleTracking = [];
+
 let anomaliesTotales = 0;
 let anomaliesTrouvees = 0;
 let couleursImageEnCours = [];
@@ -48,46 +50,7 @@ function toggleTheme() {
 }
 
 // ==========================================
-// 4. PLEIN ÉCRAN (Fullscreen API)
-// ==========================================
-document.getElementById('btn-fullscreen').addEventListener('click', () => {
-    const elem = document.getElementById('vue-jeu');
-    
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        // Alerte si on est sur mobile/tablette en mode portrait
-        if (window.innerHeight > window.innerWidth && window.innerWidth < 1024) {
-            alert("📱 ASTUCE : Tournez votre appareil en mode paysage (à l'horizontale) pour une meilleure immersion !");
-        }
-        
-        if (elem.requestFullscreen) { elem.requestFullscreen(); } 
-        else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
-    } else {
-        forceExitFullscreen();
-    }
-});
-
-function forceExitFullscreen() {
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-        if (document.exitFullscreen) document.exitFullscreen();
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    }
-}
-
-// Changer le texte du bouton selon l'état
-document.addEventListener('fullscreenchange', updateFullscreenBtn);
-document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
-
-function updateFullscreenBtn() {
-    const btn = document.getElementById('btn-fullscreen');
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-        btn.innerHTML = "🔳 Quitter le plein écran";
-    } else {
-        btn.innerHTML = "🔲 Plein écran";
-    }
-}
-
-// ==========================================
-// 5. NAVIGATION ENTRE ÉCRANS ET VUES
+// 4. NAVIGATION ENTRE ÉCRANS ET VUES
 // ==========================================
 function changerEcran(idEcran) {
     document.querySelectorAll('.screen').forEach(e => e.classList.remove('active'));
@@ -104,13 +67,12 @@ function quitterService() {
 }
 
 function retourChoix() {
-    forceExitFullscreen(); // On quitte le plein écran si l'agent interrompt la ronde
     changerVueInterne('vue-choix');
     document.getElementById('sidebar-progress-list').innerHTML = '<p style="color:var(--gray); font-size:0.9em; text-align:center;">Veuillez choisir une mission pour afficher les indicateurs.</p>';
 }
 
 // ==========================================
-// 6. LOGIN ET SAUVEGARDE
+// 5. LOGIN ET SAUVEGARDE
 // ==========================================
 function loginAgent() {
     const nom = document.getElementById('agent-nom').value.trim();
@@ -125,6 +87,7 @@ function loginAgent() {
     agentFirstName = prenom;
     document.getElementById('display-agent-name').innerText = prenom.toUpperCase() + " " + nom.toUpperCase();
     
+    // On passe directement à l'écran du Tableau de bord, sur la vue de choix.
     changerEcran('dashboard-layout');
     changerVueInterne('vue-choix');
 }
@@ -156,6 +119,7 @@ function importProgress(event) {
     reader.onload = function(e) {
         try {
             const data = JSON.parse(e.target.result);
+            // Vérification de l'agent
             if(data.firstName === document.getElementById('agent-prenom').value.trim() && data.lastName === document.getElementById('agent-nom').value.trim()) {
                 filiereActuelle = data.filiere;
                 moduleTracking = data.tracking;
@@ -185,11 +149,12 @@ function importProgress(event) {
 }
 
 // ==========================================
-// 7. MOTEUR D'INSPECTION ET HITBOXES TEST
+// 6. MOTEUR D'INSPECTION (JEU ET DASHBOARD)
 // ==========================================
 function lancerJeu(filiere) {
     filiereActuelle = filiere;
     niveauActuel = 0;
+    // Initialisation de la progression
     moduleTracking = new Array(10).fill(null).map(() => ({ played: false, color: 'vide' }));
     
     changerVueInterne('vue-jeu');
@@ -300,9 +265,10 @@ function terminerImage(source) {
     let finalColor = 'vert';
     
     if (source === 'RAS' && anomaliesTrouvees < anomaliesTotales) {
-        // R.A.S prématuré = Rouge direct
+        // L'agent a cliqué sur R.A.S alors qu'il manquait des anomalies = Rouge direct
         finalColor = 'rouge';
     } else if (couleursImageEnCours.length > 0) {
+        // La couleur globale de l'image est déterminée par la pire erreur
         if (couleursImageEnCours.includes('rouge')) finalColor = 'rouge';
         else if (couleursImageEnCours.includes('jaune')) finalColor = 'jaune';
         else finalColor = 'vert';
@@ -318,7 +284,6 @@ function terminerImage(source) {
 document.getElementById('btn-passer-mission').addEventListener('click', () => terminerImage('RAS'));
 
 function afficherBilan() {
-    forceExitFullscreen(); // Fin de la ronde : on quitte le plein écran
     changerVueInterne('vue-bilan');
     const grille = document.getElementById('grille-resultats');
     grille.innerHTML = '';
@@ -333,7 +298,7 @@ function afficherBilan() {
 }
 
 // ==========================================
-// 8. GESTION DU QCM (Logique Vert / Jaune / Rouge)
+// 7. GESTION DU QCM (Logique Vert / Jaune / Rouge)
 // ==========================================
 const modal = document.getElementById('qcm-modal');
 const btnValider = document.getElementById('btn-valider-analyse');
@@ -398,6 +363,7 @@ function verifierReponse(donneesQcm) {
 
     let couleurObtenue = '';
 
+    // Logique demandée : 2/2 = Vert, 1/2 = Jaune, 0/2 = Rouge
     if (idCorrect && justifCorrect) {
         couleurObtenue = 'vert';
         selectionId.classList.add('correct'); selectionJustif.classList.add('correct');
@@ -443,7 +409,7 @@ document.getElementById('btn-toggle-zones').addEventListener('click', () => {
 });
 
 // ==========================================
-// 9. OUTIL DÉVELOPPEUR : GRILLE DE POSITIONNEMENT
+// 8. OUTIL DÉVELOPPEUR : GRILLE DE POSITIONNEMENT
 // ==========================================
 const grilleOverlay = document.getElementById('grille-overlay');
 const lettresLignes = ['A', 'B', 'C', 'D', 'E'];
